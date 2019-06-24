@@ -3,6 +3,7 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const history = require('connect-history-api-fallback')
 const cors = require('cors');
 
 var app = express();
@@ -11,11 +12,11 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-
-app.use(cors());
+if(process.env.NODE_ENV !== 'production') app.use(cors());
 
 /* api 요청 */
 app.use('/api', require('./routes/api'))
+app.use(history())
 /* 정적파일 요청 */
 app.use(express.static(path.join(__dirname, '..', 'fe', 'dist')));
 
