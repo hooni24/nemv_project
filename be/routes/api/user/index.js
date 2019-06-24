@@ -1,25 +1,31 @@
 var express = require('express');
 var createError = require('http-errors');
 var router = express.Router();
+const User = require('../../../models/users')
 
-const us = [
-  {
-    name: '김김김',
-    age: 14
-  },
-  {
-    name : '천재',
-    age: 5
-  }
-]
-
+/* GET 유저 정보 전체 조회 */
 router.get('/', function(req, res, next) {
-  res.send({ users: us });
+  User.find()
+    .then(r => {
+      res.send({ success: true, users: r })
+    })
+    .catch(e => {
+      res.send({ success: false })
+    })
 })
 
+/* POST 유저정보 insert */
 router.post('/', (req, res, next) => {
-  console.log(req.body)
-  res.send({ success: true })
+  console.log('req.body >>> ', req.body)
+  const { name, age } = req.body
+  const u = new User({ name, age })
+  u.save()
+    .then(r => {
+      res.send({ success: true, msg: r })
+    })
+    .catch(e => {
+      res.send({ success: false, msg: e.message })
+    })
 })
 
 router.put('/', (req, res, next) => {

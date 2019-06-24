@@ -37,28 +37,23 @@ app.use(function(err, req, res, next) {
 
 module.exports = app;
 
-
 const mongoose = require('mongoose')
-
-/* 몽고디비 스키마 모델 -> 나중에 파일로 만듬 */
-const userSchema = new mongoose.Schema({
-  name: { type: String, default: '' },
-  age: { type: Number, default: 1 }
-})
-const User = mongoose.model('User', userSchema)
-
+const User = require('./models/users')
 
 mongoose.connect('mongodb://localhost:27017/nemv', { useNewUrlParser: true }, (err) => {
   if (err) return console.error(err)
   console.log('mongoose connected!')
-
-  // User.create({ name: '하하', age: 200 })
+  // User.deleteMany()
   //   .then(r => console.log(r))
   //   .catch(e => console.error(e))
 
-  User.find()
-    .then(r => console.log(r))
-    .catch(e => console.error(e))
+  // User.create({ name: '하하23', age: 200 })
+  //   .then(r => console.log(r))
+  //   .catch(e => console.error(e))
+
+  // User.find()
+  //   .then(r => console.log(r))
+  //   .catch(e => console.error(e))
 
   // User.updateOne({ _id: '5d10678b94068e3c18154268' }, { $set: { age: 222 }})
   //   .then(r => {
@@ -71,7 +66,5 @@ mongoose.connect('mongodb://localhost:27017/nemv', { useNewUrlParser: true }, (e
   // User.deleteOne({ age: 999 })
   //   .then(r => console.log(r))
   //   .catch(e => console.error(e))
-
-
 
 })
