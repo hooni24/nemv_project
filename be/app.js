@@ -36,12 +36,15 @@ app.use(function(err, req, res, next) {
   res.send({ msg: err.message });
 });
 
-module.exports = app;
 
 const mongoose = require('mongoose')
 const User = require('./models/users')
 
-mongoose.connect('mongodb://localhost:27017/nemv', { useNewUrlParser: true }, (err) => {
+console.log(`${process.env.NODE_ENV} started!`)
+
+const cfg = require('../config')
+
+mongoose.connect(cfg.dbUrl, { useNewUrlParser: true }, (err) => {
   if (err) return console.error(err)
   console.log('mongoose connected!')
   // User.deleteMany()
@@ -69,3 +72,6 @@ mongoose.connect('mongodb://localhost:27017/nemv', { useNewUrlParser: true }, (e
   //   .catch(e => console.error(e))
 
 })
+
+module.exports = app;
+
