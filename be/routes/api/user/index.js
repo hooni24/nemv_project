@@ -28,14 +28,28 @@ router.post('/', (req, res, next) => {
     })
 })
 
-router.put('/', (req, res, next) => {
-  console.log(req.body)
-  res.send({ success: true })
+router.put('/:id', (req, res, next) => {
+  const id = req.params.id
+  const { name, age } = req.body
+  User.updateOne({ _id: id }, { $set: { name, age } })
+    .then(r => {
+      res.send({ success: true, msg: r })
+    })
+    .catch(e => {
+      res.send({ success: false, msg: e.message })
+    })
 })
 
-router.delete('/', (req, res, next) => {
-  console.log(req.body)
-  res.send({ success: true })
+router.delete('/:id', (req, res, next) => {
+  const id = req.params.id
+  console.log('삭제 대상 >> ', id)
+  User.deleteOne({ _id: id })
+    .then(r => {
+      res.send({ success: true, msg: r })
+    })
+    .catch(e => {
+      res.send({ success: false, msg: e.message })
+    })
 })
 
 /**

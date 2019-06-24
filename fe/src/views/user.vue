@@ -1,7 +1,7 @@
 <template>
   <v-container grid-list-md text-xs-center>
     <v-layout row wrap>
-      <v-flex xs12 sm3>
+      <!-- <v-flex xs12 sm3>
         <v-card>
           <v-card-title primary-title>
             <div>
@@ -17,7 +17,6 @@
           </v-card-actions>
         </v-card>
       </v-flex>
-
       <v-flex xs12 sm3>
         <v-card>
           <v-card-title primary-title>
@@ -34,7 +33,6 @@
           </v-card-actions>
         </v-card>
       </v-flex>
-
       <v-flex xs12 sm3>
         <v-card>
           <v-card-title primary-title>
@@ -51,7 +49,6 @@
           </v-card-actions>
         </v-card>
       </v-flex>
-
       <v-flex xs12 sm3>
         <v-card>
           <v-card-title primary-title>
@@ -67,8 +64,80 @@
             <v-btn flat color="orange" @click="delReq">submit</v-btn>
           </v-card-actions>
         </v-card>
+      </v-flex> -->
+      <v-flex sx12 sm6 md4 v-for="u in users" :key="u._id">
+        <v-card>
+          <v-card-title primary-title>
+            <div>
+              <h3 class="headline mb-0">{{ u.name }}</h3>
+              <div> {{ u.age }} </div>
+            </div>
+          </v-card-title>
+          <v-card-actions>
+            <v-btn flat color="orange" @click="putDialog(u)">수정</v-btn>
+            <v-btn flat color="error" @click="delUser(u._id)">삭제</v-btn>
+          </v-card-actions>
+        </v-card>
       </v-flex>
+      <v-btn
+              absolute
+              dark
+              fab
+              bottom
+              right
+              color="pink"
+              @click="mdUp"
+            >
+              <v-icon>add</v-icon>
+            </v-btn>
     </v-layout>
+    <v-dialog v-model="dialog" persistent max-width="600px">
+      <v-card>
+        <v-card-title>
+          <span class="headline">User Profile</span>
+        </v-card-title>
+        <v-card-text>
+          <v-container grid-list-md>
+            <v-layout wrap>
+              <v-flex xs12 sm6 md4>
+                <v-text-field
+                  label="Name*"
+                  hint="example of persistent helper text"
+                  persistent-hint
+                  required
+                  v-model="userName"
+                ></v-text-field>
+              </v-flex>
+              <v-flex xs12 sm6>
+                <v-select
+                  :items="userAges"
+                  label="Age*"
+                  required
+                  v-model="userAge"
+                ></v-select>
+              </v-flex>
+            </v-layout>
+          </v-container>
+          <small>*indicates required field</small>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" flat @click="putUser">수정</v-btn>
+          <v-btn color="blue darken-1" flat @click="dialog = false">Close</v-btn>
+          <v-btn color="blue darken-1" flat @click="postUser">Save</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-snackbar v-model="snackbar">
+      {{ sbMsg }}
+      <v-btn
+        color="pink"
+        flat
+        @click="snackbar = false"
+      >
+        Close
+      </v-btn>
+    </v-snackbar>
   </v-container>
 </template>
 
@@ -82,49 +151,81 @@ export default {
       getMd: '',
       postMd: '',
       putMd: '',
-      delMd: ''
+      delMd: '',
+      dialog: false,
+      userAges: [],
+      userName: '',
+      userAge: 0,
+      snackbar: false,
+      sbMsg: '',
+      putId: ''
     }
   },
+  mounted() {
+    for (let i = 10; i < 40; i++) this.userAges.push(i)
+    this.getUsers()
+  },
   methods: {
-    getReq () {
+    mdUp () {
+      this.userName = ''
+      this.userAge = 0
+      this.dialog = true
+    },
+    postUser () {
+      this.dialog = false
+      axios.post('http://localhost:3000/api/user', {
+        name: this.userName, age: this.userAge
+      })
+        .then(r => {
+          this.pop('사용자 등록 완료')
+          this.getUsers()
+        })
+        .catch(e => {
+          this.pop(e.message)
+        })
+    },
+    getUsers () {
       axios.get('http://localhost:3000/api/user')
         .then(r => {
-          this.getMd = JSON.stringify(r.data)
+          console.log(r.data)
+          this.users = r.data.users
         })
         .catch(e => {
-          console.error(e.message)
+          this.pop(e.message)
         })
     },
-    postReq () {
-      axios.post('http://localhost:3000/api/user', {
-        name: '가정', age: 444
+    putDialog (user) {
+      this.putId = user._id
+      this.dialog = true
+      this.userName = user.name
+      this.userAge = user.age
+    },
+    putUser () {
+      this.dialog = false
+      axios.put(`http://localhost:3000/api/user/${this.putId}`, {
+        name: this.userName, age: this.userAge
       })
         .then(r => {
-          this.postMd = JSON.stringify(r.data)
+          this.pop('사용자 수정 완료')
+          this.getUsers()
         })
         .catch(e => {
-          console.error(e.message)
+          this.pop(e.message)
         })
     },
-    putReq () {
-      axios.put('http://localhost:3000/api/user', {
-        user: 'putMan'
-      })
+    delUser (id) {
+      axios.delete(`http://localhost:3000/api/user/${id}`)
         .then(r => {
-          this.putMd = JSON.stringify(r.data)
+          this.pop('사용자 삭제 완료')
+          this.getUsers()
         })
         .catch(e => {
-          console.error(e.message)
+          this.pop(e.message)
         })
     },
-    delReq () {
-      axios.delete('http://localhost:3000/api/user')
-        .then(r => {
-          this.delMd = JSON.stringify(r.data)
-        })
-        .catch(e => {
-          console.error(e.message)
-        })
+    pop (msg) {
+      this.snackbar = true
+      this.sbMsg = msg
     }
   }
 }
