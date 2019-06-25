@@ -20,6 +20,26 @@ export default new Router({
       // this generates a separate chunk (about.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () => import(/* webpackChunkName: "about" */ './views/user.vue')
+    },
+    {
+      path: '/group-bg',
+      name: 'group-bg',
+      component: () => import('./views/group-bg.vue')
+    },
+    {
+      path: '/header',
+      name: '헤더',
+      component: () => import('./views/header.vue')
+    },
+    {
+      path: '/sign',
+      name: '로그인',
+      component: () => import('./views/sign.vue')
+    },
+    {
+      path: '*',
+      name: 'e404',
+      component: () => import('./views/e404.vue')
     }
   ]
 })

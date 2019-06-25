@@ -4,7 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const history = require('connect-history-api-fallback')
-const cors = require('cors');
+const cors = require('cors')
 
 var app = express();
 
@@ -12,13 +12,12 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-if(process.env.NODE_ENV !== 'production') app.use(cors());
-
-/* api 요청 */
+// console.log(path.join(__dirname, '../', 'fe', 'dist'))
+if (process.env.NODE_ENV !== 'production') app.use(cors())
 app.use('/api', require('./routes/api'))
 app.use(history())
-/* 정적파일 요청 */
-app.use(express.static(path.join(__dirname, '..', 'fe', 'dist')));
+app.use(express.static(path.join(__dirname, '../', 'fe', 'dist')));
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -33,14 +32,15 @@ app.use(function(err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.send({ msg: err.message });
+  res.send({ msg: err.message })
+  console.error(err.message)
 });
-
 
 const mongoose = require('mongoose')
 const User = require('./models/users')
 
 console.log(`${process.env.NODE_ENV} started!`)
+
 
 const cfg = require('../config')
 
@@ -75,18 +75,21 @@ mongoose.connect(cfg.dbUrl, { useNewUrlParser: true }, (err) => {
 
 module.exports = app;
 
+
+
+
+/* ~~~ PLAYGROUND ~~~ */
+
 /* JWT */
-var jwt = require('jsonwebtoken');
-const key = '베리베리어려운키'
-var token = jwt.sign({ id: 'memi', email: 'memi@xxx.com' }, key);
-console.log(token)
+// var jwt = require('jsonwebtoken');
+// const key = '베리베리어려운키'
+// var token = jwt.sign({ id: 'memi', email: 'memi@xxx.com' }, key);
+// console.log(token)
 
-var decoded = jwt.verify(token, key) //, (err, r) => {
-  // if(err) return console.log(err)
-// })
+// var decoded = jwt.verify(token, key)
 
-console.log(decoded)
-console.log(new Date(decoded.iat * 1000))
+// console.log(decoded)
+// console.log(new Date(decoded.iat * 1000))
 
 
 /* Promise & async */
@@ -99,16 +102,16 @@ console.log(new Date(decoded.iat * 1000))
 //   .then(r => console.log(r))
 //   .catch(err => console.error(err))
 
-const callbackStyleFunc = (v, cb) => {
-  if (v > 1) return cb(new Error('abcd'))
-  setTimeout(() => {
-    cb(null, v + 1)
-  }, 3000)
-}
-callbackStyleFunc(1, (err, r) => {
-  if (err) return console.error(err.message)
-  console.log(r)
-})
+// const callbackStyleFunc = (v, cb) => {
+//   if (v > 1) return cb(new Error('abcd'))
+//   setTimeout(() => {
+//     cb(null, v + 1)
+//   }, 3000)
+// }
+// callbackStyleFunc(1, (err, r) => {
+//   if (err) return console.error(err.message)
+//   console.log(r)
+// })
 
 /* jwt.sign() 을 감싸서 Promise패턴화 시킨 함수. */
 const signToken = (u, k) => {
@@ -130,42 +133,42 @@ const verifyToken = (t, k) => {
 }
 
 /* Promise 패턴을 사용한 유저 생성 및 나이 1추가 프로세스 */
-let user
-User.findOne({ name: 'aaa' })
-  .then(u => {
-    if (!u) return User.create({ name: 'aaa', age: 10 })
-    return Promise.resolve(u)
-  })
-  .then(u => {
-    user = u
-    return User.updateOne({ _id: u._id}, { $inc: { age: 1 } })
-  })
-  .then(r => {
-    if (!r.nModified) throw new Error('수정된 것이 없네요..')
-    user.age++
-    return signToken(user, key)
-  })
-  .then(token => {
-    return verifyToken(token, key)
-  })
-  .then(v => console.log(v))
-  .catch(err => {
-    console.error(err.message)
-  })
+// let user
+// User.findOne({ name: 'aaa' })
+//   .then(u => {
+//     if (!u) return User.create({ name: 'aaa', age: 10 })
+//     return Promise.resolve(u)
+//   })
+//   .then(u => {
+//     user = u
+//     return User.updateOne({ _id: u._id}, { $inc: { age: 1 } })
+//   })
+//   .then(r => {
+//     if (!r.nModified) throw new Error('수정된 것이 없네요..')
+//     user.age++
+//     return signToken(user, key)
+//   })
+//   .then(token => {
+//     return verifyToken(token, key)
+//   })
+//   .then(v => console.log(v))
+//   .catch(err => {
+//     console.error(err.message)
+//   })
 
 /* 위에 Promise패턴 사용한걸 async 혼합해서 만든 프로세스 */
-const getToken = async (name) => {
-  let u = await User.findOne({ name })
-  if (!u) u = await User.create({ name, age: 10 })
-  if (u.age > 20) throw new Error(`${u.name}의 나이가 너무 많습니다. >> 현재 ${u.age}살`)
-  const ur = await User.updateOne({ _id: u._id}, { $inc: { age: 1 } })
-  if(!ur.nModified) throw new Error('수정된 것이 없네요..')
-  u = await User.findOne({ _id: u._id })
-  const token = await signToken(u, key)
-  const v = await verifyToken(token, key)
-  return v
-}
+// const getToken = async (name) => {
+//   let u = await User.findOne({ name })
+//   if (!u) u = await User.create({ name, age: 10 })
+//   if (u.age > 20) throw new Error(`${u.name}의 나이가 너무 많습니다. >> 현재 ${u.age}살`)
+//   const ur = await User.updateOne({ _id: u._id}, { $inc: { age: 1 } })
+//   if(!ur.nModified) throw new Error('수정된 것이 없네요..')
+//   u = await User.findOne({ _id: u._id })
+//   const token = await signToken(u, key)
+//   const v = await verifyToken(token, key)
+//   return v
+// }
 
-getToken('async User')
-  .then(v => console.log(v))
-  .catch(err => console.error(err.message))
+// getToken('async User')
+//   .then(v => console.log(v))
+//   .catch(err => console.error(err.message))

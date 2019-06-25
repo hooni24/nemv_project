@@ -5,7 +5,11 @@ memi님 강좌 따라하기
 루트 밑에 config/index.js 파일 만들고,
 ```javascript
 module.exports = {
-  dbUrl: 'mongodb://localhost:27017/nemv'
+  dbUrl: 'mongodb://localhost:27017/nemv',
+  admin: {
+    id: 'admin',
+    pwd: '1234'
+  }
 }
 ```
 이런 식으로 DB 연결 문자열을 작성해야 웹서버가 정상 구동됨.
