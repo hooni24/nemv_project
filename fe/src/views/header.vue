@@ -14,7 +14,7 @@
 import axios from 'axios'
 export default {
   mounted () {
-    console.log(localStorage)
+    // console.log(localStorage)
   },
   methods: {
     headerSend () {

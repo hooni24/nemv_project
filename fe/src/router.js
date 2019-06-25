@@ -16,10 +16,7 @@ export default new Router({
     {
       path: '/user',
       name: '사용자',
-      // route level code-splitting
-      // this generates a separate chunk (about.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import(/* webpackChunkName: "about" */ './views/user.vue')
+      component: () => import('./views/user.vue')
     },
     {
       path: '/group-bg',
@@ -29,12 +26,24 @@ export default new Router({
     {
       path: '/header',
       name: '헤더',
-      component: () => import('./views/header.vue')
+      component: () => import('./views/header.vue'),
+      beforeEnter: (to, from, next) => {
+        // 네비게이션 가드.
+        // console.log(to)
+        // console.log(from)
+        if (!localStorage.getItem('token')) return next('block')
+        next()
+      }
     },
     {
       path: '/sign',
       name: '로그인',
       component: () => import('./views/sign.vue')
+    },
+    {
+      path: '/block',
+      name: 'block',
+      component: () => import('./views/block.vue')
     },
     {
       path: '*',

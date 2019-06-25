@@ -5,6 +5,7 @@
         <img src="@/assets/logo.png" alt="Vuetify.js" class="mb-5">
         <blockquote>
           &#8220;First, solve the problem. Then, write the code.&#8221;
+          <v-btn @click="changeGb">{{ $store.state.token }}</v-btn>
           <footer>
             <small>
               <em>&mdash;John Johnson</em>
@@ -15,6 +16,16 @@
     </v-slide-y-transition>
   </v-container>
 </template>
+
+<script>
+export default {
+  methods: {
+    changeGb () {
+      // this.$store.state.token = 'hello'
+    }
+  }
+}
+</script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
