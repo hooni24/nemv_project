@@ -1,40 +1,49 @@
 var express = require('express');
 var createError = require('http-errors');
 var router = express.Router();
-var jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
 const cfg = require('../../../config')
 
 router.use('/sign', require('./sign'))
+router.use('/manage', require('./manage'))
 
-const verifyToken = (t, k) => {
+const verifyToken = (t) => {
   return new Promise((resolve, reject) => {
-    jwt.verify(t, k, (err, v) => {
+    if (!t) resolve({ id: 'guest', name: '손님', lv: 3 })
+    if ((typeof t) !== 'string') reject(new Error('문자가 아닌 토큰 입니다.'))
+    if (t.length < 10) resolve({ id: 'guest', name: '손님', lv: 3 })
+    jwt.verify(t, cfg.secretKey, (err, v) => {
       if (err) reject(err)
       resolve(v)
     })
   })
 }
-
-/* 간단한 미들웨어 구현 :: 토큰 베리파잉 */
-router.all('*', (req, res, next) => {
+router.all('*', function(req, res, next) {
+  // 토큰 검사
   const token = req.headers.authorization
-  verifyToken(token, cfg.secretKey)
+  verifyToken(token)
     .then(v => {
-      console.log(v)
+      req.user = v
       next()
     })
     .catch(e => res.send({ success: false, msg: e.message }))
 })
 
-router.use('/check', require('./check'))
+router.use('/page', require('./page'))
+router.all('*', function(req, res, next) {
+  if (req.user.lv > 2) return res.send({ success: false, msg: '권한이 없습니다.' })
+  next()
+})
+
 router.use('/test', require('./test'))
+router.all('*', function(req, res, next) {
+  if (req.user.lv > 0) return res.send({ success: false, msg: '권한이 없습니다.' })
+  next()
+})
 router.use('/user', require('./user'))
 
-/**
- * 정의되지 않은 api요청에 대한 처리
- */
 router.all('*', function(req, res, next) {
-  next(createError(503, '그런 api 없어'));
+  next(createError(404, '그런 api 없어'));
 });
 
 module.exports = router;

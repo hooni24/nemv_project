@@ -12,18 +12,19 @@
 </template>
 <script>
 import axios from 'axios'
+
 export default {
   mounted () {
-    // console.log(localStorage)
+    console.log(localStorage)
   },
   methods: {
     headerSend () {
-      axios.get(`${this.$apiRootPath}/test`, { headers: { xxx: 1234 } })
+      axios.get(`${this.$apiRootPath}test`, { headers: { xxx: 1234 } })
         .then(r => console.log(r))
         .catch(e => console.log(e))
     },
     headerSend2 () {
-      axios.get(`${this.$apiRootPath}/test`, { headers: { Authorization: 'fake token!' } })
+      axios.get(`${this.$apiRootPath}test`, { headers: { Authorization: 'fake token!' } })
         .then(r => console.log(r))
         .catch(e => console.log(e))
     },
@@ -41,14 +42,14 @@ export default {
     },
     apiWithToken () {
       const token = localStorage.getItem('token')
-      axios.get(`${this.$apiRootPath}/test`, { headers: { Authorization: token } })
+      axios.get(`${this.$apiRootPath}test`, { headers: { Authorization: token } })
         .then(r => console.log(r.data))
-        .catch(e => console.error(e.message))
+        .catch(e => console.log(e.message))
     },
     apiWithTrash () {
-      axios.get(`${this.$apiRootPath}/test`, { headers: { Authorization: 'trash' } })
+      axios.get(`${this.$apiRootPath}test`, { headers: { Authorization: 'abcdefghijk' } })
         .then(r => console.log(r.data))
-        .catch(e => console.error(e.message))
+        .catch(e => console.log(e.message))
     }
   }
 }

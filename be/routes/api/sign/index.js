@@ -5,16 +5,15 @@ const jwt = require('jsonwebtoken')
 const cfg = require('../../../../config')
 const User = require('../../../models/users')
 
-const signToken = (id, age) => {
+const signToken = (id, lv, name) => {
   return new Promise((resolve, reject) => {
-    jwt.sign({ id, age }, cfg.secretKey, (err, token) => {
+    jwt.sign({ id, lv, name }, cfg.secretKey, (err, token) => {
       if (err) reject(err)
       resolve(token)
     })
   })
 }
 
-/* 로그인요청에 대해 유저를 검증하고 토큰을 만들어서 반환 */
 router.post('/in', (req, res) => {
   const { id, pwd } = req.body
   if (!id) return res.send({ success: false, msg: '아이디가 없습니다.'})
@@ -24,7 +23,7 @@ router.post('/in', (req, res) => {
     .then((r) => {
       if (!r) throw new Error('존재하지 않는 아이디입니다.')
       if (r.pwd !== pwd) throw new Error('비밀번호가 틀립니다.')
-      return signToken(r.id, r.age)
+      return signToken(r.id, r.lv, r.name)
     })
     .then((r) => {
       res.send({ success: true, token: r })

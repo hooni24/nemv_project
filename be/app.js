@@ -48,72 +48,101 @@ mongoose.connect(cfg.dbUrl, { useNewUrlParser: true }, (err) => {
   if (err) return console.error(err)
   console.log('mongoose connected!')
   // User.deleteMany()
-  //   .then(r => console.log(r))
+  // .then(r => console.log(r))
   //   .catch(e => console.error(e))
 
-  // User.create({ name: '하하23', age: 200 })
+  // User.create({ name: '하하' })
   //   .then(r => console.log(r))
   //   .catch(e => console.error(e))
-
   // User.find()
   //   .then(r => console.log(r))
   //   .catch(e => console.error(e))
 
-  // User.updateOne({ _id: '5d10678b94068e3c18154268' }, { $set: { age: 222 }})
+  // User.updateOne({ _id: '5bbe038d7588bf14393d08bf' }, { $set: { age: 34 } })
   //   .then(r => {
-  //     console.log('updated', r)
+  //     console.log(r)
+  //       console.log('updated')
   //     return User.find()
   //   })
-  //   .then(r => console.log('result', r))
+  //   .then(r => console.log(r))
   //   .catch(e => console.error(e))
-
-  // User.deleteOne({ age: 999 })
+  // User.deleteOne({ name: '하하' })
   //   .then(r => console.log(r))
   //   .catch(e => console.error(e))
 
 })
 
+
 module.exports = app;
 
-
-
-
-/* ~~~ PLAYGROUND ~~~ */
-
-/* JWT */
-// var jwt = require('jsonwebtoken');
-// const key = '베리베리어려운키'
+var jwt = require('jsonwebtoken');
+const key = '베리베리어려운키'
 // var token = jwt.sign({ id: 'memi', email: 'memi@xxx.com' }, key);
 // console.log(token)
+//
+// jwt.verify(token, 'ㄴㄹㅈㄷㄹ', (err, r) => {
+//   if (err) return console.error(err.message)
+//   console.log(r) // bar
+//   console.log(new Date(r.iat * 1000).toLocaleString())
+// })
 
-// var decoded = jwt.verify(token, key)
 
-// console.log(decoded)
-// console.log(new Date(decoded.iat * 1000))
+// console.log(jwt.sign({ id: 'memi' }, 'abcd'))
+// console.log('헬로?')
+// jwt.sign({ id: 'memi'}, 'key', (err, token) => {
+//   console.log(token)
+// })
+// console.log('헬로?')
 
-
-/* Promise & async */
 // User.findOne({}, (err, r) => {
 //   if (err) return console.error(err)
 //   console.log(r)
 // })
-
 // User.findOne({})
 //   .then(r => console.log(r))
 //   .catch(err => console.error(err))
 
-// const callbackStyleFunc = (v, cb) => {
-//   if (v > 1) return cb(new Error('abcd'))
-//   setTimeout(() => {
-//     cb(null, v + 1)
-//   }, 3000)
-// }
-// callbackStyleFunc(1, (err, r) => {
+
+// 콜백
+// User.findOne({ name: 'aaa'}, (err, u) => {
 //   if (err) return console.error(err.message)
-//   console.log(r)
+//   if (!u) {
+//     console.log(u) // null
+//     User.create({ name: 'aaa', age: 10 }, (err, cu) => {
+//       if (err) return console.error(err.message)
+//       console.log(cu) // { name: 'aaa', age: 10, _id: 5bd81974ad66cf3832db0838, __v: 0 }
+//       jwt.sign({ name: cu.name, age: cu.age}, key, (err, token) => {
+//         if (err) return console.error(err.message)
+//         console.log(token) // eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+//         jwt.verify(token, key, (err, v) => {
+//           if (err) return console.error(err.message)
+//           console.log(v) // { name: 'aaa', age: 10, iat: 1540888948 }
+//         })
+//       })
+//     })
+//   }
+//   else {
+//     console.log(u) // { name: 'aaa', age: 10, _id: 5bd81974ad66cf3832db0838, __v: 0 }
+//     const user = u
+//     User.updateOne({ _id: u._id }, { $inc: { age: 1 }}, (err, ur) => {
+//       if (err) return console.error(err.message)
+//       console.log(ur) // { n: 1, nModified: 1, ... }
+//       jwt.sign({ name: user.name, age: user.age + 1 }, key, (err, token) => {
+//         if (err) return console.error(err.message)
+//         console.log(token) // eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+//         jwt.verify(token, key, (err, v) => {
+//           if (err) return console.error(err.message)
+//           console.log(v) // { name: 'aaa', age: 11, iat: 1540889007 }
+//         })
+//       })
+//     })
+//   }
 // })
 
-/* jwt.sign() 을 감싸서 Promise패턴화 시킨 함수. */
+// User.deleteMany({})
+//   .then(r => console.log(r))
+//   .catch(err => console.error(err))
+
 const signToken = (u, k) => {
   return new Promise((resolve, reject) => {
     jwt.sign({ name: u.name, age: u.age }, k, (err, token) => {
@@ -122,7 +151,6 @@ const signToken = (u, k) => {
     })
   })
 }
-/* jwt.verify() 를 감싸서 Promise패턴화 시킨 함수 */
 const verifyToken = (t, k) => {
   return new Promise((resolve, reject) => {
     jwt.verify(t, k, (err, v) => {
@@ -132,43 +160,59 @@ const verifyToken = (t, k) => {
   })
 }
 
-/* Promise 패턴을 사용한 유저 생성 및 나이 1추가 프로세스 */
+// 프라미스
 // let user
 // User.findOne({ name: 'aaa' })
-//   .then(u => {
+//   .then((u) => {
 //     if (!u) return User.create({ name: 'aaa', age: 10 })
 //     return Promise.resolve(u)
 //   })
-//   .then(u => {
+//   .then((u) => {
 //     user = u
-//     return User.updateOne({ _id: u._id}, { $inc: { age: 1 } })
+//     return User.updateOne({ _id: u._id }, { $inc: { age: 1 }})
 //   })
-//   .then(r => {
+//   .then((r) => {
 //     if (!r.nModified) throw new Error('수정된 것이 없네요..')
 //     user.age++
 //     return signToken(user, key)
 //   })
-//   .then(token => {
+//   .then((token) => {
 //     return verifyToken(token, key)
 //   })
 //   .then(v => console.log(v))
-//   .catch(err => {
+//   .catch((err) => {
 //     console.error(err.message)
 //   })
 
-/* 위에 Promise패턴 사용한걸 async 혼합해서 만든 프로세스 */
+// 어씽크 테스트
+
+// const asyncTest = async (i) => {
+//   if (i > 10) throw new Error('10보다 큰건 싫어요')
+//   return i + 2
+// }
+//
+// asyncTest(1)
+//   .then(r => console.log(`2 더해져서 ${r} 입니다.`))
+//   .catch(e => console.error(`에러났네요: ${e.message}`))
+//
+// asyncTest(11)
+//   .then(r => console.log(`2 더해져서 ${r} 입니다.`))
+//   .catch(e => console.error(`에러났네요: ${e.message}`))
+
+// 어씽크
+
 // const getToken = async (name) => {
-//   let u = await User.findOne({ name })
-//   if (!u) u = await User.create({ name, age: 10 })
-//   if (u.age > 20) throw new Error(`${u.name}의 나이가 너무 많습니다. >> 현재 ${u.age}살`)
-//   const ur = await User.updateOne({ _id: u._id}, { $inc: { age: 1 } })
-//   if(!ur.nModified) throw new Error('수정된 것이 없네요..')
-//   u = await User.findOne({ _id: u._id })
-//   const token = await signToken(u, key)
+//   let u = await User.findOne({ name }) // name: name을 축약하고 await로 기다려 줍니다.
+//   if (!u) u = await User.create({ name , age: 10 }) // 만들어주고 u를 갱신 합니다.
+//   if (u.age > 12) throw new Error(`${u.age}는 나이가 너무 많습니다.`)
+//   const ur = await User.updateOne({ _id: u._id }, { $inc: { age: 1 }}) // age를 증가시키고 ur(user result)에 결과값을 담아놓습니다.
+//   if (!ur.nModified) throw new Error('수정된 것이 없네요..') // 수정된 값이 없다면 에러와 함께 내보냅니다.
+//   u = await User.findOne({ _id: u._id }) // age가 증가 된 것으로 갱신해줍니다.
+//   const token = await signToken(u, key) // 받아 두었던 u로 토큰을 만듭니다.
 //   const v = await verifyToken(token, key)
 //   return v
 // }
-
-// getToken('async User')
+//
+// getToken('aaa')
 //   .then(v => console.log(v))
 //   .catch(err => console.error(err.message))

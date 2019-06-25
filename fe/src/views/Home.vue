@@ -5,11 +5,11 @@
         <img src="@/assets/logo.png" alt="Vuetify.js" class="mb-5">
         <blockquote>
           &#8220;First, solve the problem. Then, write the code.&#8221;
-          <v-btn @click="changeGb">{{ $store.state.token }}</v-btn>
           <footer>
             <small>
-              <em>&mdash;John Johnson</em>
+              <em>{{msg}}</em>
             </small>
+            <v-btn color="error" @click="delAll">데이터베이스 전체 삭제</v-btn>
           </footer>
         </blockquote>
       </v-layout>
@@ -19,9 +19,20 @@
 
 <script>
 export default {
+  data () {
+    return {
+      msg: ''
+    }
+  },
   methods: {
-    changeGb () {
-      // this.$store.state.token = 'hello'
+    delAll () {
+      this.$axios.delete(`${this.$apiRootPath}test/delAll`, { headers: { Authorization: localStorage.getItem('token') } })
+        .then(r => {
+          this.msg = r.data.msg
+        })
+        .catch(e => {
+          this.msg = e.message
+        })
     }
   }
 }
