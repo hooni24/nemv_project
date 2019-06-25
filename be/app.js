@@ -75,7 +75,7 @@ mongoose.connect(cfg.dbUrl, { useNewUrlParser: true }, (err) => {
 
 module.exports = app;
 
-
+/* JWT */
 var jwt = require('jsonwebtoken');
 const key = '베리베리어려운키'
 var token = jwt.sign({ id: 'memi', email: 'memi@xxx.com' }, key);
@@ -87,3 +87,85 @@ var decoded = jwt.verify(token, key) //, (err, r) => {
 
 console.log(decoded)
 console.log(new Date(decoded.iat * 1000))
+
+
+/* Promise & async */
+// User.findOne({}, (err, r) => {
+//   if (err) return console.error(err)
+//   console.log(r)
+// })
+
+// User.findOne({})
+//   .then(r => console.log(r))
+//   .catch(err => console.error(err))
+
+const callbackStyleFunc = (v, cb) => {
+  if (v > 1) return cb(new Error('abcd'))
+  setTimeout(() => {
+    cb(null, v + 1)
+  }, 3000)
+}
+callbackStyleFunc(1, (err, r) => {
+  if (err) return console.error(err.message)
+  console.log(r)
+})
+
+/* jwt.sign() 을 감싸서 Promise패턴화 시킨 함수. */
+const signToken = (u, k) => {
+  return new Promise((resolve, reject) => {
+    jwt.sign({ name: u.name, age: u.age }, k, (err, token) => {
+      if (err) reject(err)
+      resolve(token)
+    })
+  })
+}
+/* jwt.verify() 를 감싸서 Promise패턴화 시킨 함수 */
+const verifyToken = (t, k) => {
+  return new Promise((resolve, reject) => {
+    jwt.verify(t, k, (err, v) => {
+      if (err) reject(err)
+      resolve(v)
+    })
+  })
+}
+
+/* Promise 패턴을 사용한 유저 생성 및 나이 1추가 프로세스 */
+let user
+User.findOne({ name: 'aaa' })
+  .then(u => {
+    if (!u) return User.create({ name: 'aaa', age: 10 })
+    return Promise.resolve(u)
+  })
+  .then(u => {
+    user = u
+    return User.updateOne({ _id: u._id}, { $inc: { age: 1 } })
+  })
+  .then(r => {
+    if (!r.nModified) throw new Error('수정된 것이 없네요..')
+    user.age++
+    return signToken(user, key)
+  })
+  .then(token => {
+    return verifyToken(token, key)
+  })
+  .then(v => console.log(v))
+  .catch(err => {
+    console.error(err.message)
+  })
+
+/* 위에 Promise패턴 사용한걸 async 혼합해서 만든 프로세스 */
+const getToken = async (name) => {
+  let u = await User.findOne({ name })
+  if (!u) u = await User.create({ name, age: 10 })
+  if (u.age > 20) throw new Error(`${u.name}의 나이가 너무 많습니다. >> 현재 ${u.age}살`)
+  const ur = await User.updateOne({ _id: u._id}, { $inc: { age: 1 } })
+  if(!ur.nModified) throw new Error('수정된 것이 없네요..')
+  u = await User.findOne({ _id: u._id })
+  const token = await signToken(u, key)
+  const v = await verifyToken(token, key)
+  return v
+}
+
+getToken('async User')
+  .then(v => console.log(v))
+  .catch(err => console.error(err.message))
