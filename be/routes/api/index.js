@@ -1,12 +1,29 @@
 var express = require('express');
 var createError = require('http-errors');
 var router = express.Router();
+var jwt = require('jsonwebtoken')
+const cfg = require('../../../config')
 
 router.use('/sign', require('./sign'))
 
-/* 간단한 미들웨어 구현 */
+const verifyToken = (t, k) => {
+  return new Promise((resolve, reject) => {
+    jwt.verify(t, k, (err, v) => {
+      if (err) reject(err)
+      resolve(v)
+    })
+  })
+}
+
+/* 간단한 미들웨어 구현 :: 토큰 베리파잉 */
 router.all('*', (req, res, next) => {
-  next()  // 다음으로 넘어간다.
+  const token = req.headers.authorization
+  verifyToken(token, cfg.secretKey)
+    .then(v => {
+      console.log(v)
+      next()
+    })
+    .catch(e => res.send({ success: false, msg: e.message }))
 })
 
 router.use('/check', require('./check'))
