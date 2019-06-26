@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import axios from 'axios'
-import Home from './views/Home.vue'
+import store from './store'
 
 Vue.use(Router)
 
@@ -21,25 +21,39 @@ axios.interceptors.request.use(function (config) {
   return Promise.reject(error)
 })
 
-// Add a response interceptor
 axios.interceptors.response.use(function (response) {
-  // Do something with response data
+  const token = response.data.token
+  if (token) localStorage.setItem('token', token)
   return response
 }, function (error) {
-  // Do something with response error
+  // console.log(error.response)
+  switch (error.response.status) {
+    case 400:
+      store.commit('pop', { msg: `잘못된 요청입니다(${error.response.status}:${error.message})`, color: 'error' })
+      break
+    case 401:
+      store.commit('delToken')
+      store.commit('pop', { msg: `인증 오류입니다(${error.response.data.msg}:${error.message})`, color: 'error' })
+      break
+    case 403:
+      store.commit('pop', { msg: `이용 권한이 없습니다(${error.response.data.msg}:${error.message})`, color: 'warning' })
+      break
+    default:
+      store.commit('pop', { msg: `알수 없는 오류입니다(${error.response.data.msg}:${error.message})`, color: 'error' })
+      break
+  }
   return Promise.reject(error)
 })
 
 const pageCheck = (to, from, next) => {
-  // return next()
-  axios.post('page', { name: to.path.replace('/', '') }, { headers: { Authorization: localStorage.getItem('token') } })
+  axios.post('page', { name: to.path })
     .then((r) => {
       if (!r.data.success) throw new Error(r.data.msg)
       next()
     })
     .catch((e) => {
-      // console.error(e.message)
-      next(`/block/${e.message}`)
+      if (!e.response) store.commit('pop', { msg: e.message, color: 'warning' })
+      next(false)
     })
 }
 
@@ -49,75 +63,69 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'lv3',
-      component: () => import('./views/lv3'),
+      name: 'dashboard',
+      component: () => import('./views/dashboard'),
       beforeEnter: pageCheck
     },
     {
-      path: '/lv2',
-      name: 'lv2',
-      component: () => import('./views/lv2'),
+      path: '/board/:name',
+      name: 'board',
+      component: () => import('./views/board'),
       beforeEnter: pageCheck
     },
     {
-      path: '/lv1',
-      name: 'lv1',
-      component: () => import('./views/lv1'),
+      path: '/test/lv3',
+      name: 'testLv3',
+      component: () => import('./views/test/lv3'),
       beforeEnter: pageCheck
     },
     {
-      path: '/lv0',
-      name: 'lv0',
-      component: () => import('./views/lv0'),
+      path: '/test/lv2',
+      name: 'testLv2',
+      component: () => import('./views/test/lv2'),
       beforeEnter: pageCheck
     },
     {
-      path: '/user',
-      name: '사용자',
-      component: () => import('./views/user'),
+      path: '/test/lv1',
+      name: 'testLv1',
+      component: () => import('./views/test/lv1'),
       beforeEnter: pageCheck
     },
     {
-      path: '/page',
-      name: '페이지',
-      component: () => import('./views/page'),
+      path: '/test/lv0',
+      name: 'testLv0',
+      component: () => import('./views/test/lv0'),
       beforeEnter: pageCheck
     },
     {
-      path: '/site',
-      name: '사이트',
-      component: () => import('./views/site'),
+      path: '/manage/users',
+      name: 'manageUsers',
+      component: () => import('./views/manage/user'),
       beforeEnter: pageCheck
     },
     {
-      path: '/home',
-      name: 'home',
-      component: Home,
+      path: '/manage/pages',
+      name: 'managePages',
+      component: () => import('./views/manage/pages'),
       beforeEnter: pageCheck
     },
     {
-      path: '/group-bg',
-      name: 'group-bg',
-      component: () => import('./views/group-bg'),
+      path: '/manage/sites',
+      name: 'manageSites',
+      component: () => import('./views/manage/sites'),
       beforeEnter: pageCheck
     },
     {
-      path: '/header',
-      name: '헤더',
-      component: () => import('./views/header'),
-      // beforeEnter: authCheck
+      path: '/manage/boards',
+      name: 'manageBoards',
+      component: () => import('./views/manage/boards'),
       beforeEnter: pageCheck
     },
-    {
-      path: '/block/:msg',
-      name: '차단',
-      component: () => import('./views/block')
-    },
-    {
-      path: '/test',
-      name: 'test',
-      component: () => import('./views/test')
-    },
+    // {
+    //   path: '/block/:msg',
+    //   name: '차단',
+    //   component: () => import('./views/block')
+    // },
     {
       path: '/sign',
       name: '로그인',

@@ -37,7 +37,6 @@ app.use(function(err, req, res, next) {
 });
 
 const mongoose = require('mongoose')
-const User = require('./models/users')
 
 console.log(`${process.env.NODE_ENV} started!`)
 
@@ -75,8 +74,8 @@ mongoose.connect(cfg.dbUrl, { useNewUrlParser: true }, (err) => {
 
 module.exports = app;
 
-var jwt = require('jsonwebtoken');
-const key = '베리베리어려운키'
+// var jwt = require('jsonwebtoken');
+// const key = '베리베리어려운키'
 // var token = jwt.sign({ id: 'memi', email: 'memi@xxx.com' }, key);
 // console.log(token)
 //
@@ -143,22 +142,22 @@ const key = '베리베리어려운키'
 //   .then(r => console.log(r))
 //   .catch(err => console.error(err))
 
-const signToken = (u, k) => {
-  return new Promise((resolve, reject) => {
-    jwt.sign({ name: u.name, age: u.age }, k, (err, token) => {
-      if (err) reject(err)
-      resolve(token)
-    })
-  })
-}
-const verifyToken = (t, k) => {
-  return new Promise((resolve, reject) => {
-    jwt.verify(t, k, (err, v) => {
-      if (err) reject(err)
-      resolve(v)
-    })
-  })
-}
+// const signToken = (u, k) => {
+//   return new Promise((resolve, reject) => {
+//     jwt.sign({ name: u.name, age: u.age }, k, (err, token) => {
+//       if (err) reject(err)
+//       resolve(token)
+//     })
+//   })
+// }
+// const verifyToken = (t, k) => {
+//   return new Promise((resolve, reject) => {
+//     jwt.verify(t, k, (err, v) => {
+//       if (err) reject(err)
+//       resolve(v)
+//     })
+//   })
+// }
 
 // 프라미스
 // let user
@@ -216,3 +215,51 @@ const verifyToken = (t, k) => {
 // getToken('aaa')
 //   .then(v => console.log(v))
 //   .catch(err => console.error(err.message))
+
+// const crypto = require('crypto');
+// const bf = Buffer.alloc(64)
+// const s = crypto.randomFillSync(bf)
+// console.log(s.toString('hex'))
+
+// const moment = require('moment')
+
+// moment.locale('ko')
+//
+// console.log(moment().fromNow())
+// console.log(moment().add(-5, 'hours').fromNow())
+// console.log(moment().add(5, 'hours').fromNow())
+//
+// moment.locale('ko')
+// console.log(moment().fromNow())
+// console.log(moment().add(-40, 'hours').fromNow())
+// console.log(moment().add(10, 'hours').fromNow())
+
+// const ct = moment() // 현재시간
+// const bt = moment().add(-1, 'hours') // 한시간전
+//
+// console.log(ct.diff(bt))
+// console.log(ct.diff(bt,'seconds'))
+//
+// console.log(bt.diff(ct))
+// console.log(bt.diff(ct,'seconds'))
+
+
+// const User = require('./models/users')
+// const Board = require('./models/boards')
+// const Article = require('./models/articles')
+
+// User.findOne()
+//   .then(r => console.log(r.id, r._id)) // 5be1c7eb0ff40640c81ecc0d
+//
+//
+// Board.findOne()
+//   .then(r => console.log(r.name, r._id)) // 5be97f5f8fb2da704ad95273
+
+// Article.create({ title: 'aaa', content: 'kkfjf', _user: '5be1c7eb0ff40640c81ecc0d', _board: '5be97f5f8fb2da704ad95273' })
+//   .then(r => console.log(r))
+
+
+// Article.find({ _board: '5be97f5f8fb2da704ad95273'})
+//   .populate('_user', 'name')
+//   .populate('_board')
+//   .then(r => console.log(r))
