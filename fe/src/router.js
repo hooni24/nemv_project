@@ -9,11 +9,30 @@ Vue.prototype.$axios = axios
 const apiRootPath = process.env.NODE_ENV !== 'production' ? 'http://localhost:3000/api/' : '/api/'
 Vue.prototype.$apiRootPath = apiRootPath
 axios.defaults.baseURL = apiRootPath
-axios.defaults.headers.common['Authorization'] = localStorage.getItem('token') || ''
+// axios.defaults.headers.common['Authorization'] = localStorage.getItem('token')
+
+// Add a request interceptor
+axios.interceptors.request.use(function (config) {
+  // Do something before request is sent
+  config.headers.Authorization = localStorage.getItem('token')
+  return config
+}, function (error) {
+  // Do something with request error
+  return Promise.reject(error)
+})
+
+// Add a response interceptor
+axios.interceptors.response.use(function (response) {
+  // Do something with response data
+  return response
+}, function (error) {
+  // Do something with response error
+  return Promise.reject(error)
+})
 
 const pageCheck = (to, from, next) => {
   // return next()
-  axios.post(`${apiRootPath}page`, { name: to.path.replace('/', '') }, { headers: { Authorization: localStorage.getItem('token') || '' } })
+  axios.post('page', { name: to.path.replace('/', '') }, { headers: { Authorization: localStorage.getItem('token') } })
     .then((r) => {
       if (!r.data.success) throw new Error(r.data.msg)
       next()
@@ -30,14 +49,8 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'lv0',
-      component: () => import('./views/lv0'),
-      beforeEnter: pageCheck
-    },
-    {
-      path: '/lv1',
-      name: 'lv1',
-      component: () => import('./views/lv1'),
+      name: 'lv3',
+      component: () => import('./views/lv3'),
       beforeEnter: pageCheck
     },
     {
@@ -47,9 +60,15 @@ export default new Router({
       beforeEnter: pageCheck
     },
     {
-      path: '/lv3',
-      name: 'lv3',
-      component: () => import('./views/lv3'),
+      path: '/lv1',
+      name: 'lv1',
+      component: () => import('./views/lv1'),
+      beforeEnter: pageCheck
+    },
+    {
+      path: '/lv0',
+      name: 'lv0',
+      component: () => import('./views/lv0'),
       beforeEnter: pageCheck
     },
     {
@@ -62,6 +81,12 @@ export default new Router({
       path: '/page',
       name: '페이지',
       component: () => import('./views/page'),
+      beforeEnter: pageCheck
+    },
+    {
+      path: '/site',
+      name: '사이트',
+      component: () => import('./views/site'),
       beforeEnter: pageCheck
     },
     {
@@ -97,6 +122,11 @@ export default new Router({
       path: '/sign',
       name: '로그인',
       component: () => import('./views/sign')
+    },
+    {
+      path: '/register',
+      name: '회원가입',
+      component: () => import('./views/register')
     },
     {
       path: '*',
